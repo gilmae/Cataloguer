@@ -1,0 +1,24 @@
+{
+  "the magicians us": {
+    "show":  "The Magicians",
+  },
+  "doctor who 2005":{
+      "show": "Doctor Who",
+      "year": "2005"
+  },
+  "the americans 2013": {
+      "show": "The Americans",
+      "year": "2013"
+  },
+  "archer 2009": {
+    "show": "Archer",
+    "year": "2009"
+  },
+  "twin peaks": {
+    "show": "Twin Peaks",
+    "year": "2017"
+  },
+  "the mist": {
+    "year": "2017"
+  }
+}

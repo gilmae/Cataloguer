@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -13,10 +15,13 @@ namespace TrolleyCar
     public class Program
     {
         const string DOT_DIRECTORY = "/Users/gilmae/.trolley";
+        static IDictionary<string, Job> _tweaks {get;set;}
 
         public static void Main(string[] args)
         {
-            Work();
+          _tweaks = JsonConvert.DeserializeObject<IDictionary<string, Job>>(File.ReadAllText(@"tweaks.json"));
+          Console.WriteLine(_tweaks.Keys.Count);
+          Work();
 
         }
 
@@ -89,26 +94,9 @@ namespace TrolleyCar
             showname = showname.Replace(".", " ");
             job.Show = showname;
 
-            if (showname.ToLower() == "the magicians us") {
-                job.Show =  "The Magicians";
-            }
-            else if (showname.ToLower() == "doctor who 2005") {
-                job.Show =  "Doctor Who";
-                job.Year = "2005";
-            }
-            else if (showname.ToLower() == "the americans 2013") {
-                job.Show =  "The Americans";
-                job.Year = "2013";
-            }
-            else if (showname.ToLower() == "archer 2009") {
-                job.Show = "Archer";
-                job.Year = "2009";
-            }
-            else if (showname.ToLower() == "twin peaks") {
-              job.Year = "2017";
-            }
-            else if (showname.ToLower() == "the mist") {
-              job.Year = "2017";
+            if (_tweaks.ContainsKey(showname.ToLower()))
+            {
+              job = UpdateJob(job, _tweaks[showname.ToLower()]);
             }
         }
 
@@ -148,6 +136,24 @@ namespace TrolleyCar
                 var content = new StringContent(JsonConvert.SerializeObject(job), Encoding.UTF8, "application/json");
                 var result = client.PostAsync(orchestratorUrl, content).Result;
             }
+        }
+
+        public static Job UpdateJob(Job existing, Job newData)
+        {
+          if (!string.IsNullOrEmpty(newData.Show)) {
+            existing.Show = newData.Show;
+          }
+          if (!string.IsNullOrEmpty(newData.Season)) {
+            existing.Season = newData.Season;
+          }
+          if (!string.IsNullOrEmpty(newData.Episode)) {
+            existing.Episode = newData.Episode;
+          }
+          if (!string.IsNullOrEmpty(newData.Year)) {
+            existing.Year = newData.Year;
+          }
+
+          return existing;
         }
     }
 }
