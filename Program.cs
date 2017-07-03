@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -20,9 +20,56 @@ namespace TrolleyCar
         public static void Main(string[] args)
         {
           _tweaks = JsonConvert.DeserializeObject<IDictionary<string, Job>>(File.ReadAllText(@"tweaks.json"));
-          Console.WriteLine(_tweaks.Keys.Count);
-          Work();
 
+          switch (args[0])
+          {
+              case "tweak":
+                Console.WriteLine("tweaking");
+                    Tweak(args);
+                break;
+              case "work":
+                Console.WriteLine("Working");
+                Work();
+                break;
+          }
+        }
+
+        public static void Tweak(string[] args) 
+        {
+            string key = args[1].ToLower();
+            if (!_tweaks.ContainsKey(key))
+            {
+                _tweaks[key] = new Job();
+            }
+
+            Job job = _tweaks[key];
+
+            string newValue = args[3];
+
+            switch (args[2]) 
+            {
+                case "year":
+                case "y":
+                    job.Year = newValue;
+                    break;
+                case "show":
+                case "s":
+                    job.Show = newValue;
+                    break;
+                case "episode":
+                case "ep":
+                case "e":
+                    job.Episode = newValue;
+                    break;
+				case "season":
+				case "se":
+					job.Season = newValue;
+					break;
+			}
+
+            _tweaks[key] = job;
+
+            File.WriteAllText(@"tweaks.json", JsonConvert.SerializeObject(_tweaks));
         }
 
         public static void Work()
