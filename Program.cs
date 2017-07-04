@@ -16,10 +16,13 @@ namespace TrolleyCar
     {
         const string DOT_DIRECTORY = "/Users/gilmae/.trolley";
         static IDictionary<string, Job> _tweaks {get;set;}
+        static IDictionary<string, string> _config;
 
         public static void Main(string[] args)
         {
           _tweaks = JsonConvert.DeserializeObject<IDictionary<string, Job>>(File.ReadAllText(@"tweaks.json"));
+
+            _config = JsonConvert.DeserializeObject<IDictionary<string, string>>(File.ReadAllText(@".config"));
 
           switch (args[0])
           {
@@ -34,7 +37,7 @@ namespace TrolleyCar
           }
         }
 
-        public static void Tweak(string[] args) 
+        public static void Tweak(string[] args)
         {
             string key = args[1].ToLower();
             if (!_tweaks.ContainsKey(key))
@@ -46,7 +49,7 @@ namespace TrolleyCar
 
             string newValue = args[3];
 
-            switch (args[2]) 
+            switch (args[2])
             {
                 case "year":
                 case "y":
@@ -74,13 +77,13 @@ namespace TrolleyCar
 
         public static void Work()
         {
-            var factory = new ConnectionFactory() { HostName = "localhost" };
+            var factory = new ConnectionFactory() { HostName = _config["queue_host"] };
             factory.AutomaticRecoveryEnabled = true;
             using (var connection = factory.CreateConnection())
             {
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare(queue: "cataloguing",
+                    channel.QueueDeclare(queue: _config["queue_name"],
                                      durable: true,
                                      exclusive: false,
                                      autoDelete: false,
@@ -100,10 +103,10 @@ namespace TrolleyCar
                 catch (Exception ex) {
                   Console.WriteLine(ex.StackTrace);
                 }
-                UpdateOrchestrator(new System.Uri("http://localhost:3001/cataloguingComplete"), job);
+                UpdateOrchestrator(new System.Uri(_config["orchestrator"]), job);
 
             };
-            channel.BasicConsume(queue: "cataloguing",
+            channel.BasicConsume(queue: _config["queue_name"],
                                  noAck: true,
                                  consumer: consumer);
 

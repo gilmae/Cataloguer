@@ -1,0 +1,5 @@
+﻿{
+  "queue_host": YOUR_HOST_NAME,
+  "queue_name": YOUR_QUEUE_NAME,
+  "orchestrator": YOUR_ORCHESTRATOR_LOCATION
+}
