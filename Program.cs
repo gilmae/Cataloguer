@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -15,26 +15,26 @@ namespace TrolleyCar
     public class Program
     {
         const string DOT_DIRECTORY = "/Users/gilmae/.trolley";
-        static IDictionary<string, Job> _tweaks {get;set;}
+        static IDictionary<string, Job> _tweaks { get; set; }
         static IDictionary<string, string> _config;
 
         public static void Main(string[] args)
         {
-          _tweaks = JsonConvert.DeserializeObject<IDictionary<string, Job>>(File.ReadAllText(@"tweaks.json"));
+            _tweaks = JsonConvert.DeserializeObject<IDictionary<string, Job>>(File.ReadAllText(@"tweaks.json"));
 
             _config = JsonConvert.DeserializeObject<IDictionary<string, string>>(File.ReadAllText(@".config"));
 
-          switch (args[0])
-          {
-              case "tweak":
-                Console.WriteLine("tweaking");
+            switch (args[0])
+            {
+                case "tweak":
+                    Console.WriteLine("tweaking");
                     Tweak(args);
-                break;
-              case "work":
-                Console.WriteLine("Working");
-                Work();
-                break;
-          }
+                    break;
+                case "work":
+                    Console.WriteLine("Working");
+                    Work();
+                    break;
+            }
         }
 
         public static void Tweak(string[] args)
@@ -64,11 +64,11 @@ namespace TrolleyCar
                 case "e":
                     job.Episode = newValue;
                     break;
-				case "season":
-				case "se":
-					job.Season = newValue;
-					break;
-			}
+                case "season":
+                case "se":
+                    job.Season = newValue;
+                    break;
+            }
 
             _tweaks[key] = job;
 
@@ -89,65 +89,61 @@ namespace TrolleyCar
                                      autoDelete: false,
                                      arguments: null);
 
-                                      var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += (model, ea) =>
-            {
-                var body = ea.Body;
-                var message = Encoding.UTF8.GetString(body);
-                Job job = new Job();
-                job = JsonConvert.DeserializeObject<Job>(message);
-                try {
+                    var consumer = new EventingBasicConsumer(channel);
+                    consumer.Received += (model, ea) =>
+                    {
+                        var body = ea.Body;
+                        var message = Encoding.UTF8.GetString(body);
+                        Job job = new Job();
+                        job = JsonConvert.DeserializeObject<Job>(message);
+                        try
+                        {
+                            Catalog(ref job);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.StackTrace);
+                        }
 
-                  job = Catalog(ref job);
-                }
-                catch (Exception ex) {
-                  Console.WriteLine(ex.StackTrace);
-                }
-                UpdateOrchestrator(new System.Uri(_config["orchestrator"]), job);
+                    };
+                    channel.BasicConsume(queue: _config["queue_name"],
+                                         noAck: true,
+                                         consumer: consumer);
 
-            };
-            channel.BasicConsume(queue: _config["queue_name"],
-                                 noAck: true,
-                                 consumer: consumer);
-
-            Console.WriteLine(" Press [enter] to exit.");
-            Console.ReadLine();
+                    Console.WriteLine(" Press [enter] to exit.");
+                    Console.ReadLine();
 
                 }
             }
         }
 
-        public static Job Catalog(ref Job job)
+        public static void Catalog(ref Job job)
         {
             string filename = Path.GetFileName(job.Path);
 
             if (DecipherFileName(filename, ref job))
             {
-                job.Type= "TV show";
+                job.Type = "TV show";
 
-                TweakJob(ref job);
+                char[] charsToTrim = { ' ', '-', '.', '_' };
+                string showname = job.Show.Trim(charsToTrim);
+                showname = showname.Replace(".", " ");
+                job.Show = showname;
+
+                if (_tweaks.ContainsKey(showname.ToLower()))
+                {
+                    job = UpdateJob(job, _tweaks[showname.ToLower()]);
+                }
 
                 job.Metadata = ShowDb.GetShowDetails(job.Show, job.Season, job.Episode, job.Year);
             }
             else
             {
-                job.Type="movie";
+                job.Type = "movie";
             }
 
-            return job;
-        }
+            UpdateOrchestrator(new System.Uri(_config["orchestrator"]), job);
 
-        public static void TweakJob(ref Job job)
-        {
-            char[] charsToTrim = {' ', '-', '.', '_'};
-            string showname = job.Show.Trim(charsToTrim);
-            showname = showname.Replace(".", " ");
-            job.Show = showname;
-
-            if (_tweaks.ContainsKey(showname.ToLower()))
-            {
-              job = UpdateJob(job, _tweaks[showname.ToLower()]);
-            }
         }
 
         public static bool DecipherFileName(string filename, ref Job job)
@@ -160,13 +156,16 @@ namespace TrolleyCar
             string showname = filename;
             string season = "";
             string episode = "";
-            if (result.Groups.Count > 1) {
+            if (result.Groups.Count > 1)
+            {
                 showname = result.Groups[1].Value;
 
-                if (result.Groups.Count > 2) {
+                if (result.Groups.Count > 2)
+                {
                     season = result.Groups[2].Value;
 
-                    if (result.Groups.Count > 3) {
+                    if (result.Groups.Count > 3)
+                    {
                         episode = result.Groups[3].Value;
                     }
                 }
@@ -182,7 +181,8 @@ namespace TrolleyCar
 
         public static void UpdateOrchestrator(Uri orchestratorUrl, Job job)
         {
-            using (HttpClient client = new HttpClient()) {
+            using (HttpClient client = new HttpClient())
+            {
                 var content = new StringContent(JsonConvert.SerializeObject(job), Encoding.UTF8, "application/json");
                 var result = client.PostAsync(orchestratorUrl, content).Result;
             }
@@ -190,20 +190,24 @@ namespace TrolleyCar
 
         public static Job UpdateJob(Job existing, Job newData)
         {
-          if (!string.IsNullOrEmpty(newData.Show)) {
-            existing.Show = newData.Show;
-          }
-          if (!string.IsNullOrEmpty(newData.Season)) {
-            existing.Season = newData.Season;
-          }
-          if (!string.IsNullOrEmpty(newData.Episode)) {
-            existing.Episode = newData.Episode;
-          }
-          if (!string.IsNullOrEmpty(newData.Year)) {
-            existing.Year = newData.Year;
-          }
+            if (!string.IsNullOrEmpty(newData.Show))
+            {
+                existing.Show = newData.Show;
+            }
+            if (!string.IsNullOrEmpty(newData.Season))
+            {
+                existing.Season = newData.Season;
+            }
+            if (!string.IsNullOrEmpty(newData.Episode))
+            {
+                existing.Episode = newData.Episode;
+            }
+            if (!string.IsNullOrEmpty(newData.Year))
+            {
+                existing.Year = newData.Year;
+            }
 
-          return existing;
+            return existing;
         }
     }
 }
