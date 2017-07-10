@@ -196,11 +196,25 @@ namespace TrolleyCar
             }
             if (!string.IsNullOrEmpty(newData.Season))
             {
-                existing.Season = newData.Season;
+                try
+                {
+                    existing.Season = (int.Parse(existing.Season) + int.Parse(newData.Season)).ToString();
+                }
+                catch 
+                {
+                    
+                }
             }
             if (!string.IsNullOrEmpty(newData.Episode))
             {
-                existing.Episode = newData.Episode;
+                try 
+                { 
+                    existing.Episode = (int.Parse(existing.Episode) + int.Parse(newData.Episode)).ToString(); 
+                }
+                catch 
+                {
+                    
+                }
             }
             if (!string.IsNullOrEmpty(newData.Year))
             {

@@ -1,0 +1,20 @@
+﻿<Properties StartupConfiguration="{9EEE3293-7C43-4476-AD2B-0CFA8262592C}|Default">
+  <MonoDevelop.Ide.Workbench ActiveDocument="ShowDb.cs">
+    <Files>
+      <File FileName="ShowDb.cs" Line="1" Column="1" />
+      <File FileName="Program.cs" Line="8" Column="1" />
+      <File FileName="tweaks.json" Line="1" Column="1" />
+      <File FileName=".gitignore" Line="34" Column="8" />
+      <File FileName="config.sample" Line="6" Column="1" />
+      <File FileName=".config" Line="6" Column="1" />
+      <File FileName="Config.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.cataloguer.net PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+</Properties>

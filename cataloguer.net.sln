@@ -1,0 +1,17 @@
+
+Microsoft Visual Studio Solution File, Format Version 15.00
+# Visual Studio 2017
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cataloguer.net", "cataloguer.net.csproj", "{9EEE3293-7C43-4476-AD2B-0CFA8262592C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9EEE3293-7C43-4476-AD2B-0CFA8262592C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EEE3293-7C43-4476-AD2B-0CFA8262592C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EEE3293-7C43-4476-AD2B-0CFA8262592C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EEE3293-7C43-4476-AD2B-0CFA8262592C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
